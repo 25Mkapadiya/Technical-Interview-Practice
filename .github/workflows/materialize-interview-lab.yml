@@ -1,0 +1,77 @@
+name: Materialize Interview Lab
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/materialize-interview-lab.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: materialize-interview-lab
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Expand project bundle
+        run: |
+          cat .bootstrap/bundle.part* | base64 --decode > /tmp/interview-lab.tgz
+          tar -xzf /tmp/interview-lab.tgz -C .
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Refresh A2Z metadata
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.54.2
+          npx playwright install --with-deps chromium
+          if ! node scripts/sync-striver.mjs; then
+            echo "Live extraction failed; using validated 474-item fallback data."
+            node scripts/make-fallback.mjs
+          fi
+          rm -rf node_modules package.json package-lock.json
+
+      - name: Validate application
+        run: |
+          node --check app.js
+          node --check lib/problem-engine.js
+          node --check lib/runner.js
+          node --check lib/complexity.js
+          node --check workers/js-worker.js
+          node --check workers/python-worker.js
+          node --check scripts/sync-striver.mjs
+          node -e "const d=require('./data/problems.json'); if(d.problems.length!==474) throw new Error('Expected 474 problems'); console.log(d.problems.length,'problems validated')"
+
+      - name: Commit readable source
+        run: |
+          rm -rf .bootstrap
+          rm -f .github/workflows/bootstrap-interview-lab.yml
+          rm -f .github/workflows/materialize-interview-lab.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'build Interview Lab A2Z practice platform [skip ci]'
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

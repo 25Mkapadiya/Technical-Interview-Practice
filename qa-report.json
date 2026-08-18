@@ -10,8 +10,24 @@
   "externalProblemLinksRequired": false,
   "status": "ok",
   "browser": {
-    "status": "pending"
+    "pageLoaded": true,
+    "problemCount": 474,
+    "selfContainedDescription": true,
+    "canonicalLinkRequired": false,
+    "editorModelLifecycle": "single-active-model",
+    "humanSimulation": {
+      "firstProblem": "Largest Element",
+      "wrongSubmissionRejected": true,
+      "pythonCorrectSubmission": "4/4",
+      "secondProblem": "Second Largest Element",
+      "javascriptCorrectSubmission": "4/4"
+    },
+    "solutionTab": true,
+    "hiddenCasesProtected": true,
+    "interviewModeSolutionLock": true,
+    "browserErrors": 0,
+    "status": "ok"
   },
   "commit": "e825a9adf7ae073b55bed9efa8ce29e5d5b651db",
-  "checkedAt": "2026-08-18T18:36:50.467Z"
+  "checkedAt": "2026-08-18T18:37:09.457Z"
 }

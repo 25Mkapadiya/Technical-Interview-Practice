@@ -1,10 +1,10 @@
 {
   "a2zProblems": 474,
   "selfContainedProblems": 474,
-  "curatedProblemMatches": 82,
+  "curatedProblemMatches": 108,
   "problemSpecificSolutions": 42,
-  "judgeSuites": 75,
-  "judgeCases": 237,
+  "judgeSuites": 101,
+  "judgeCases": 295,
   "variantGuards": "ok",
   "titleCollisionGuards": "ok",
   "externalProblemLinksRequired": false,

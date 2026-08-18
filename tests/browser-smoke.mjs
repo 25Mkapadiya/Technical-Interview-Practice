@@ -32,12 +32,14 @@ async function openByTitle(searchText, predicateSource) {
   assert.ok(selected, `Could not select problem for ${searchText}`);
   await page.locator('.workspace').waitFor({ timeout: 15_000 });
   await page.waitForFunction(() => window.InterviewLabContext?.currentProblem?.title, null, { timeout: 15_000 });
+  await page.waitForFunction(() => window.InterviewLabEditor?.getActiveModel?.(), null, { timeout: 30_000 });
+  await page.waitForFunction(() => window.InterviewLabEditor?.modelCount?.() === 1, null, { timeout: 10_000 });
   return selected;
 }
 
 async function setCode(code) {
-  await page.waitForFunction(() => window.monaco && window.monaco.editor.getModels().length > 0, null, { timeout: 30_000 });
-  await page.evaluate((value) => window.monaco.editor.getModels()[0].setValue(value), code);
+  await page.waitForFunction(() => window.InterviewLabEditor?.getActiveModel?.(), null, { timeout: 30_000 });
+  await page.evaluate((value) => window.InterviewLabEditor.getActiveModel().setValue(value), code);
 }
 
 async function submit(timeout = 70_000) {
@@ -114,6 +116,7 @@ try {
     problemCount: 474,
     selfContainedDescription: true,
     canonicalLinkRequired: false,
+    editorModelLifecycle: 'single-active-model',
     humanSimulation: {
       firstProblem: largestTitle,
       wrongSubmissionRejected: true,

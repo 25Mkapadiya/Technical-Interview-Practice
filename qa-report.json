@@ -1,34 +1,13 @@
 {
   "a2zProblems": 474,
   "selfContainedProblems": 474,
-  "curatedProblemMatches": 389,
+  "curatedProblemMatches": 404,
   "problemSpecificSolutions": 42,
-  "judgeSuites": 363,
-  "judgeCases": 850,
+  "judgeSuites": 374,
+  "judgeCases": 872,
   "variantGuards": "ok",
   "titleCollisionGuards": "ok",
   "externalProblemLinksRequired": false,
   "residualCanonicalDependencies": 0,
-  "status": "ok",
-  "browser": {
-    "pageLoaded": true,
-    "problemCount": 474,
-    "selfContainedDescription": true,
-    "canonicalLinkRequired": false,
-    "editorModelLifecycle": "single-active-model",
-    "humanSimulation": {
-      "firstProblem": "Largest Element",
-      "wrongSubmissionRejected": true,
-      "pythonCorrectSubmission": "4/4",
-      "secondProblem": "Second Largest Element",
-      "javascriptCorrectSubmission": "4/4"
-    },
-    "solutionTab": true,
-    "hiddenCasesProtected": true,
-    "interviewModeSolutionLock": true,
-    "browserErrors": 0,
-    "status": "ok"
-  },
-  "commit": "1bd62dd0ab8ccb519adb0458e83975f903547f00",
-  "checkedAt": "2026-08-18T19:58:25.662Z"
+  "status": "ok"
 }

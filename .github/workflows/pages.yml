@@ -39,6 +39,7 @@ jobs:
           node --check lib/judge-cases.js
           node --check lib/semantic-guards.js
           node --check lib/collision-guards.js
+          node --check lib/content-engine.js
           node --check lib/problem-context.js
           node --check lib/runner.js
           node --check lib/complexity.js
@@ -48,7 +49,7 @@ jobs:
           node --check scripts/sync-striver.mjs
           node --check tests/qa.mjs
           node --check tests/browser-smoke.mjs
-      - name: Run data and judge QA
+      - name: Run data, content, explanation, and judge QA
         run: node tests/qa.mjs > qa-report.json
       - name: Checkpoint static QA
         run: |
@@ -71,7 +72,7 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.54.2
           npx playwright install --with-deps chromium
-      - name: Run browser smoke test
+      - name: Simulate a human solving multiple programs
         id: browser
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 >/tmp/interview-lab-server.log 2>&1 &
@@ -93,11 +94,8 @@ jobs:
           const code = Number(process.env.BROWSER_EXIT_CODE || 1);
           const log = fs.existsSync('browser-run.log') ? fs.readFileSync('browser-run.log', 'utf8') : '';
           if (code === 0) {
-            try {
-              report.browser = JSON.parse(log);
-            } catch {
-              report.browser = { status: 'ok', raw: log.slice(-4000) };
-            }
+            try { report.browser = JSON.parse(log); }
+            catch { report.browser = { status: 'ok', raw: log.slice(-4000) }; }
           } else {
             report.status = 'failed';
             report.browser = { status: 'failed', exitCode: code, error: log.slice(-8000) };

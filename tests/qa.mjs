@@ -8,7 +8,7 @@ const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
 globalThis.window = {};
 globalThis.performance ??= { now: () => Date.now() };
 
-for (const file of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/semantic-guards.js', 'lib/problem-context.js', 'lib/runner.js']) {
+for (const file of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/semantic-guards.js', 'lib/collision-guards.js', 'lib/problem-context.js', 'lib/runner.js']) {
   vm.runInThisContext(read(file), { filename: file });
 }
 
@@ -29,6 +29,11 @@ assert.equal(window.Runner.outputsMatch('2 0', { expected: '0 2', compare: 'unor
 assert.equal(window.Runner.outputsMatch('5', { expected: '4', compare: 'exact' }), false, 'Exact comparison accepted a wrong answer');
 
 const variant = (title, topic = '') => window.ProblemEngine.enrich({ id: `variant-${title}`, order: 1, title, topic, difficulty: 'Medium' });
+
+const secondLargest = variant('Second Largest Element in an Array', 'Solve Problems on Arrays [Easy -> Medium -> Hard]');
+assert.equal(secondLargest.tests[0]?.expected, '4', 'Second-largest inherited the plain largest-element judge');
+assert.match(secondLargest.outputFormat, /second distinct largest/i);
+assert.match(window.SolutionEngine.explain(secondLargest).intuition, /second-largest|second maximum|top two|largest and second/i);
 
 const kth = variant('Kth Largest Element in an Array', 'Heaps [Learning, Medium, Hard Problems]');
 assert.equal(kth.tests[0]?.expected, '5', 'Kth-largest inherited the plain largest-element judge');
@@ -95,7 +100,7 @@ assert.ok(curated >= 15, `Expected curated judges to attach to at least 15 A2Z e
 assert.ok(specificSolutions >= 10, `Expected at least 10 problem-specific solution explanations; got ${specificSolutions}`);
 
 const index = read('index.html');
-for (const script of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/semantic-guards.js', 'lib/problem-context.js', 'lib/runner.js', 'lib/complexity.js', 'app.js', 'lib/ui-enhancements.js']) {
+for (const script of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/semantic-guards.js', 'lib/collision-guards.js', 'lib/problem-context.js', 'lib/runner.js', 'lib/complexity.js', 'app.js', 'lib/ui-enhancements.js']) {
   assert.ok(index.includes(script), `index.html is missing ${script}`);
 }
 
@@ -106,5 +111,6 @@ console.log(JSON.stringify({
   judgeSuites: judgeAudit.suiteCount,
   judgeCases: judgeAudit.testCount,
   variantGuards: 'ok',
+  titleCollisionGuards: 'ok',
   status: 'ok'
 }, null, 2));

@@ -8,17 +8,8 @@
   "titleCollisionGuards": "ok",
   "status": "ok",
   "browser": {
-    "pageLoaded": true,
-    "problemCount": 474,
-    "selectedProblem": "Largest Element",
-    "solutionTab": true,
-    "hiddenCasesProtected": true,
-    "pythonSubmit": "4/4",
-    "javascriptRun": "ok",
-    "interviewModeSolutionLock": true,
-    "browserErrors": 0,
-    "status": "ok"
+    "status": "pending"
   },
-  "commit": "45b15e49a7ef437f8de8f7010f48cee802b90656",
-  "checkedAt": "2026-08-18T17:25:58.498Z"
+  "commit": "89978b2a36ee0bbde70299657d956f4da49eb24e",
+  "checkedAt": "2026-08-18T18:15:41.731Z"
 }

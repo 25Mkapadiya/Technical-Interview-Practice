@@ -4,22 +4,27 @@ A dark, LeetCode-inspired personal interview-prep workspace built around Striver
 
 ## What it includes
 
-- Full 474-item A2Z roadmap structure with scheduled live metadata sync
+- Full 474-item A2Z roadmap with exact-title seed data plus scheduled live metadata sync
 - Search, topic/difficulty/status filters, progress, streaks, and revision queue
 - Independent hash URL for every problem (`#problem=<id>`)
 - Monaco code editor with Python, JavaScript, C++, and Java modes
 - Python execution entirely in-browser via Pyodide
 - JavaScript execution inside a disposable Web Worker with a timeout
 - Optional Piston-compatible remote runner for C++ and Java
-- Run vs Submit workflow with curated visible + hidden edge tests where a local oracle is trustworthy
+- Run vs Submit workflow with curated edge tests where a local oracle is trustworthy
 - Original progressive hints and interview approach coaching
 - Static heuristic time/space complexity analysis with evidence and confidence
 - Interview Mode that hides coaching and starts a timer
 - Local-only saved code, submission history, progress, and settings
+- GitHub Pages deployment with a JavaScript syntax gate
 
-## Why statements are concise
+## Problem metadata
 
-The project intentionally does not copy hundreds of third-party problem statements or editorials. The live sync stores problem metadata and canonical source links. Interview Lab generates its own concise practice brief, hints, testing contract, and learning guidance.
+The app first uses a locally synced `data/problems.json` when available. If that file has not been generated yet, it loads the public 474-problem verified dataset from `septilex/a2z-tracker` and validates the count before using it. A built-in 474-item structural fallback is the last resort.
+
+`.github/workflows/sync-striver.yml` is the ongoing source-of-truth refresh. It opens the current TakeUForward A2Z page in Playwright, extracts the list, and refuses to replace the dataset unless it finds exactly 474 unique entries.
+
+The project intentionally does not copy hundreds of third-party problem statements or editorials. It stores metadata and canonical links, then provides its own concise practice briefs, hints, testing contracts, and interview-learning guidance.
 
 ## Run locally
 
@@ -35,12 +40,6 @@ Then open `http://localhost:8000`.
 
 The Settings panel accepts a Piston-compatible `/api/v2/piston/execute` endpoint and optional bearer token. Python and JavaScript need no backend.
 
-## A2Z sync
-
-`.github/workflows/sync-striver.yml` opens the current TakeUForward A2Z page in Playwright, extracts the 474-problem list, validates the count, then refreshes `data/problems.json`. It refuses to overwrite the current dataset if extraction is incomplete.
-
-The workflow runs weekly, on manual dispatch, and whenever the sync script changes.
-
 ## Validation note
 
-No finite hand-written test suite can prove correctness for every possible input. Curated suites are designed to catch common edge cases. Problems without a trustworthy local oracle are clearly marked `custom` instead of pretending they have full hidden-test coverage.
+No finite hand-written test suite can prove correctness for every possible input. Curated suites are designed to catch common edge cases. Problems without a trustworthy local oracle are clearly marked `custom` instead of pretending they have complete hidden-test coverage.

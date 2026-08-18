@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111111" />
+  <meta name="description" content="A private interview-prep workspace built around Striver's A2Z DSA roadmap." />
+  <title>Interview Lab · A2Z Practice</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+  <script defer src="lib/problem-engine.js"></script>
+  <script defer src="lib/runner.js"></script>
+  <script defer src="lib/complexity.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div class="brand" role="button" tabindex="0" data-action="home" aria-label="Go to dashboard">
+        <div class="brand-mark">IL</div>
+        <div class="brand-copy">
+          <strong>Interview Lab</strong>
+          <span>A2Z Practice</span>
+        </div>
+      </div>
+      <nav class="topnav" aria-label="Primary">
+        <button class="nav-btn active" data-route="roadmap">Roadmap</button>
+        <button class="nav-btn" data-route="problems">Problems</button>
+        <button class="nav-btn" data-route="revision">Revision</button>
+      </nav>
+      <div class="topbar-actions">
+        <div class="streak-pill" title="Current solve streak">
+          <span aria-hidden="true">🔥</span>
+          <strong id="streakCount">0</strong>
+        </div>
+        <button class="icon-btn" data-action="random" title="Random problem" aria-label="Random problem">⤨</button>
+        <button class="icon-btn" data-action="settings" title="Settings" aria-label="Settings">⚙</button>
+      </div>
+    </header>
+
+    <main id="mainView" class="main-view" aria-live="polite"></main>
+  </div>
+
+  <div id="toastHost" class="toast-host" aria-live="polite" aria-atomic="true"></div>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog" class="settings-card">
+      <div class="settings-header">
+        <div>
+          <p class="eyebrow">Environment</p>
+          <h2>Practice settings</h2>
+        </div>
+        <button value="cancel" class="icon-btn" aria-label="Close settings">×</button>
+      </div>
+      <label class="field">
+        <span>Default language</span>
+        <select id="defaultLanguage">
+          <option value="python">Python 3</option>
+          <option value="javascript">JavaScript</option>
+          <option value="cpp">C++</option>
+          <option value="java">Java</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Remote runner endpoint <small>(optional for C++ / Java)</small></span>
+        <input id="runnerEndpoint" type="url" placeholder="https://your-piston.example/api/v2/piston/execute" autocomplete="off" />
+      </label>
+      <label class="field">
+        <span>Runner authorization token <small>(stored only in this browser)</small></span>
+        <input id="runnerToken" type="password" placeholder="Optional bearer token" autocomplete="off" />
+      </label>
+      <label class="toggle-row">
+        <input id="interviewModeDefault" type="checkbox" />
+        <span>
+          <strong>Start in Interview Mode</strong>
+          <small>Hide hints and start a timer when you open a problem.</small>
+        </span>
+      </label>
+      <div class="settings-note">
+        Python runs locally in your browser with Pyodide. JavaScript runs in an isolated Web Worker. C++ and Java need a runner you control.
+      </div>
+      <div class="settings-footer">
+        <button value="cancel" class="btn secondary">Cancel</button>
+        <button id="saveSettings" value="default" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

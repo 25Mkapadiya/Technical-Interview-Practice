@@ -43,6 +43,7 @@ jobs:
           node --check lib/problem-context.js
           node --check lib/runner.js
           node --check lib/complexity.js
+          node --check lib/editor-lifecycle.js
           node --check lib/ui-enhancements.js
           node --check workers/js-worker.js
           node --check workers/python-worker.js
@@ -71,7 +72,7 @@ jobs:
         run: |
           npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.54.2
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - name: Simulate a human solving multiple programs
         id: browser
         run: |

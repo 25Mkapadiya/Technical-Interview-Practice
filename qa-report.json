@@ -8,5 +8,6 @@
   "variantGuards": "ok",
   "titleCollisionGuards": "ok",
   "externalProblemLinksRequired": false,
+  "residualCanonicalDependencies": 0,
   "status": "ok"
 }

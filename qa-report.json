@@ -8,12 +8,10 @@
   "variantGuards": "ok",
   "titleCollisionGuards": "ok",
   "externalProblemLinksRequired": false,
-  "status": "failed",
+  "status": "ok",
   "browser": {
-    "status": "failed",
-    "exitCode": 1,
-    "error": "node:internal/modules/run_main:123\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Correct Second Largest JavaScript solution failed.\nWrong Answer\n0/4 passed · 41 ms\n✕ Duplicates at max\nexpected: 4\nreceived: \n\n✕ Negative values\nexpected: -2\nreceived: \n\n✕ Two distinct values\nexpected: 1\nreceived: \n\n✕ Maximum first\nexpected: 9\nreceived: \n    at file:///home/runner/work/Technical-Interview-Practice/Technical-Interview-Practice/tests/browser-smoke.mjs:99:10 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 'Wrong Answer',\n  expected: /Accepted/i,\n  operator: 'match',\n  diff: 'simple'\n}\n\nNode.js v22.23.2\n"
+    "status": "pending"
   },
-  "commit": "c2411ba85566e292babaee7e3060f6c94f7d6f25",
-  "checkedAt": "2026-08-18T18:24:26.661Z"
+  "commit": "fcd1503965278aca052ec08eee7babb5a6ffaef9",
+  "checkedAt": "2026-08-18T18:26:56.365Z"
 }

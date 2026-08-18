@@ -21,15 +21,26 @@ try {
   assert.equal(await page.locator('.problem-row[data-problem-id]').count(), 474, 'Problem library did not render all 474 A2Z entries');
 
   const search = page.locator('#searchProblems');
-  await search.fill('Largest Element in an Array');
+  await search.fill('Largest Element');
   await page.waitForTimeout(250);
   assert.equal(await search.evaluate((node) => document.activeElement === node), true, 'Problem search lost keyboard focus after filtering');
 
-  const largestRow = page.locator('.problem-row[data-problem-id]').filter({ hasText: /Largest Element in an Array/i }).first();
-  await largestRow.waitFor({ timeout: 10_000 });
-  await largestRow.click();
+  const selectedTitle = await page.evaluate(() => {
+    const rows = [...document.querySelectorAll('.problem-row[data-problem-id]')];
+    const row = rows.find((candidate) => {
+      const title = (candidate.querySelector('.problem-title')?.textContent || '').trim().toLowerCase();
+      return title.includes('largest element') && !title.includes('second') && !title.includes('kth') && !title.includes('k-th');
+    });
+    if (!row) return '';
+    const title = (row.querySelector('.problem-title')?.textContent || '').trim();
+    row.click();
+    return title;
+  });
+  assert.ok(selectedTitle, 'Could not find the plain Largest Element problem without matching Second/Kth Largest variants');
+  assert.doesNotMatch(selectedTitle, /second|kth|k-th/i);
 
-  await page.locator('.workspace').waitFor();
+  await page.locator('.workspace').waitFor({ timeout: 10_000 });
+  assert.doesNotMatch(await page.locator('.problem-heading h1').innerText(), /second|kth|k-th/i);
   await page.locator('[data-solution-tab]').waitFor({ timeout: 10_000 });
   await page.locator('[data-solution-tab]').click();
   await page.getByRole('heading', { name: 'Intuition' }).waitFor();
@@ -74,6 +85,7 @@ try {
   console.log(JSON.stringify({
     pageLoaded: true,
     problemCount: 474,
+    selectedProblem: selectedTitle,
     solutionTab: true,
     hiddenCasesProtected: true,
     pythonSubmit: '4/4',

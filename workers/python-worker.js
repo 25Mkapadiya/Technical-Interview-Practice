@@ -1,4 +1,5 @@
 let pyodideReady;
+
 async function getPyodide() {
   if (!pyodideReady) {
     pyodideReady = (async () => {
@@ -10,7 +11,7 @@ async function getPyodide() {
 }
 
 self.onmessage = async (event) => {
-  const { code = '', stdin = '' } = event.data || {};
+  const { id = 0, code = '', stdin = '' } = event.data || {};
   try {
     const pyodide = await getPyodide();
     pyodide.globals.set('__interview_lab_stdin__', String(stdin));
@@ -33,8 +34,8 @@ finally:
 `);
     const values = result.toJs ? result.toJs() : result;
     if (result.destroy) result.destroy();
-    self.postMessage({ ok: Boolean(values[0]), stdout: String(values[1] || ''), stderr: String(values[2] || ''), exitCode: values[0] ? 0 : 1 });
+    self.postMessage({ id, ok: Boolean(values[0]), stdout: String(values[1] || ''), stderr: String(values[2] || ''), exitCode: values[0] ? 0 : 1 });
   } catch (error) {
-    self.postMessage({ ok: false, stdout: '', stderr: `Python runtime error: ${error.message}`, exitCode: 1 });
+    self.postMessage({ id, ok: false, stdout: '', stderr: `Python runtime error: ${error.message}`, exitCode: 1 });
   }
 };

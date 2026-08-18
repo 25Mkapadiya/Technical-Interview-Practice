@@ -8,7 +8,7 @@ const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
 globalThis.window = {};
 globalThis.performance ??= { now: () => Date.now() };
 
-for (const file of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/problem-context.js', 'lib/runner.js']) {
+for (const file of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/semantic-guards.js', 'lib/problem-context.js', 'lib/runner.js']) {
   vm.runInThisContext(read(file), { filename: file });
 }
 
@@ -27,6 +27,29 @@ assert.equal(window.Runner.outputsMatch('True\n', { expected: 'true', compare: '
 assert.equal(window.Runner.outputsMatch('[1, 2, 3]', { expected: '1 2 3', compare: 'tokens' }), true, 'Token comparison should ignore common list punctuation');
 assert.equal(window.Runner.outputsMatch('2 0', { expected: '0 2', compare: 'unorderedTokens' }), true, 'Unordered token comparison should accept either pair order');
 assert.equal(window.Runner.outputsMatch('5', { expected: '4', compare: 'exact' }), false, 'Exact comparison accepted a wrong answer');
+
+const variant = (title, topic = '') => window.ProblemEngine.enrich({ id: `variant-${title}`, order: 1, title, topic, difficulty: 'Medium' });
+
+const kth = variant('Kth Largest Element in an Array', 'Heaps [Learning, Medium, Hard Problems]');
+assert.equal(kth.tests[0]?.expected, '5', 'Kth-largest inherited the plain largest-element judge');
+assert.match(kth.outputFormat, /kth largest/i);
+
+const majorityII = variant('Majority Element II', 'Solve Problems on Arrays [Easy -> Medium -> Hard]');
+assert.equal(majorityII.validationCoverage, 'curated');
+assert.match(majorityII.outputFormat, /n\/3|floor\(n\/3\)/i);
+assert.match(window.SolutionEngine.explain(majorityII).intuition, /two|at most two|two candidates/i);
+
+const robberII = variant('House Robber II', 'Dynamic Programming [Patterns and Problems]');
+assert.match(robberII.inputFormat, /circle/i);
+assert.match(window.SolutionEngine.explain(robberII).intuition, /first and last|adjacent/i);
+
+const stockIII = variant('Best Time to Buy and Sell Stock III', 'Dynamic Programming [Patterns and Problems]');
+assert.equal(stockIII.validationCoverage, 'custom', 'Stock III inherited the one-transaction judge');
+assert.equal(window.SolutionEngine.explain(stockIII).level, 'problem-specific');
+
+const printLcs = variant('Print Longest Common Subsequence', 'Dynamic Programming [Patterns and Problems]');
+assert.equal(printLcs.validationCoverage, 'custom', 'Print LCS inherited the length-only judge');
+assert.match(window.SolutionEngine.explain(printLcs).intuition, /reconstruct|walk backward/i);
 
 const seedUrl = 'https://raw.githubusercontent.com/septilex/a2z-tracker/main/dsa_tracker/a2z_problems_simple.json';
 const response = await fetch(seedUrl);
@@ -72,7 +95,7 @@ assert.ok(curated >= 15, `Expected curated judges to attach to at least 15 A2Z e
 assert.ok(specificSolutions >= 10, `Expected at least 10 problem-specific solution explanations; got ${specificSolutions}`);
 
 const index = read('index.html');
-for (const script of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/problem-context.js', 'lib/runner.js', 'lib/complexity.js', 'app.js', 'lib/ui-enhancements.js']) {
+for (const script of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/semantic-guards.js', 'lib/problem-context.js', 'lib/runner.js', 'lib/complexity.js', 'app.js', 'lib/ui-enhancements.js']) {
   assert.ok(index.includes(script), `index.html is missing ${script}`);
 }
 
@@ -82,5 +105,6 @@ console.log(JSON.stringify({
   problemSpecificSolutions: specificSolutions,
   judgeSuites: judgeAudit.suiteCount,
   judgeCases: judgeAudit.testCount,
+  variantGuards: 'ok',
   status: 'ok'
 }, null, 2));

@@ -1,0 +1,49 @@
+name: Sync Striver A2Z metadata
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 8 * * 1'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/sync-striver.mjs'
+      - '.github/workflows/sync-striver.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.54.2
+          npx playwright install --with-deps chromium
+      - name: Sync live problem metadata
+        run: node scripts/sync-striver.mjs
+      - name: Upload sync diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: striver-sync-debug
+          path: sync-debug.json
+          if-no-files-found: ignore
+      - name: Commit refreshed dataset
+        run: |
+          if git diff --quiet -- data/problems.json; then
+            echo 'No dataset changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/problems.json
+          git commit -m 'sync A2Z problem metadata [skip ci]'
+          git push

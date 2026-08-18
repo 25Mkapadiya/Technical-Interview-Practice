@@ -30,11 +30,17 @@ jobs:
           node --check app.js
           node --check lib/a2z-seed-loader.js
           node --check lib/problem-engine.js
+          node --check lib/solution-engine.js
+          node --check lib/judge-cases.js
           node --check lib/runner.js
           node --check lib/complexity.js
+          node --check lib/ui-enhancements.js
           node --check workers/js-worker.js
           node --check workers/python-worker.js
           node --check scripts/sync-striver.mjs
+          node --check tests/qa.mjs
+      - name: Run Interview Lab QA
+        run: node tests/qa.mjs
       - uses: actions/configure-pages@v5
         with:
           enablement: true

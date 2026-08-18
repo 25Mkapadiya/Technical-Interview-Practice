@@ -38,6 +38,7 @@ jobs:
           node --check lib/solution-engine.js
           node --check lib/judge-cases.js
           node --check lib/semantic-guards.js
+          node --check lib/collision-guards.js
           node --check lib/problem-context.js
           node --check lib/runner.js
           node --check lib/complexity.js

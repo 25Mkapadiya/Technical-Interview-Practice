@@ -1,15 +1,17 @@
 {
   "a2zProblems": 474,
+  "selfContainedProblems": 474,
   "curatedProblemMatches": 43,
   "problemSpecificSolutions": 42,
   "judgeSuites": 34,
   "judgeCases": 112,
   "variantGuards": "ok",
   "titleCollisionGuards": "ok",
+  "externalProblemLinksRequired": false,
   "status": "ok",
   "browser": {
     "status": "pending"
   },
-  "commit": "9a07cca099d0cf2e9d80eaeb346155ef317b209e",
-  "checkedAt": "2026-08-18T18:16:52.599Z"
+  "commit": "0621c695d4fbcc96df4e3c644e9d0381633b9219",
+  "checkedAt": "2026-08-18T18:18:13.736Z"
 }

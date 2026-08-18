@@ -5,12 +5,11 @@
   "judgeSuites": 34,
   "judgeCases": 112,
   "variantGuards": "ok",
-  "status": "failed",
+  "titleCollisionGuards": "ok",
+  "status": "ok",
   "browser": {
-    "status": "failed",
-    "exitCode": 1,
-    "error": "node:internal/modules/run_main:123\n    triggerUncaughtException(\n    ^\n\nlocator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('.problem-row[data-problem-id]').filter({ hasText: /Largest Element in an Array/i }).first()\n    - locator resolved to <div class=\"problem-row\" data-problem-id=\"a2z-270-k-th-largest-element-in-an-array\">…</div>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - performing click action\n\n    at /home/runner/work/Technical-Interview-Practice/Technical-Interview-Practice/tests/browser-smoke.mjs:30:20 {\n  name: 'TimeoutError'\n}\n\nNode.js v22.23.2\n"
+    "status": "pending"
   },
-  "commit": "bf8367322a0ff89f1d0987b6f79893b244b9eabd",
-  "checkedAt": "2026-08-18T17:16:35.157Z"
+  "commit": "45b15e49a7ef437f8de8f7010f48cee802b90656",
+  "checkedAt": "2026-08-18T17:24:55.451Z"
 }

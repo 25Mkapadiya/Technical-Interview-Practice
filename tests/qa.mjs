@@ -41,9 +41,11 @@ assert.equal(majorityII.validationCoverage, 'curated');
 const robberII = variant('House Robber II', 'Dynamic Programming [Patterns and Problems]');
 assert.match(robberII.inputFormat, /circle/i);
 const stockIII = variant('Best Time to Buy and Sell Stock III', 'Dynamic Programming [Patterns and Problems]');
-assert.equal(stockIII.validationCoverage, 'custom');
+assert.equal(stockIII.validationCoverage, 'curated');
+assert.match(stockIII.inputFormat, /at most 2/i);
 const printLcs = variant('Print Longest Common Subsequence', 'Dynamic Programming [Patterns and Problems]');
-assert.equal(printLcs.validationCoverage, 'custom');
+assert.equal(printLcs.validationCoverage, 'curated');
+assert.match(printLcs.outputFormat, /subsequence itself|one longest common subsequence/i);
 
 const seedUrl = 'https://raw.githubusercontent.com/septilex/a2z-tracker/main/dsa_tracker/a2z_problems_simple.json';
 const response = await fetch(seedUrl);

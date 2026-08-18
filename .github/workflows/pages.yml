@@ -3,10 +3,12 @@ name: Deploy Interview Lab to Pages
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'qa-report.json'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -22,6 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -32,6 +36,7 @@ jobs:
           node --check lib/problem-engine.js
           node --check lib/solution-engine.js
           node --check lib/judge-cases.js
+          node --check lib/problem-context.js
           node --check lib/runner.js
           node --check lib/complexity.js
           node --check lib/ui-enhancements.js
@@ -40,7 +45,24 @@ jobs:
           node --check scripts/sync-striver.mjs
           node --check tests/qa.mjs
       - name: Run Interview Lab QA
-        run: node tests/qa.mjs
+        run: node tests/qa.mjs | tee qa-report.json
+      - name: Stamp QA report
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('qa-report.json', 'utf8'));
+          report.commit = process.env.GITHUB_SHA;
+          report.checkedAt = new Date().toISOString();
+          fs.writeFileSync('qa-report.json', JSON.stringify(report, null, 2) + '\n');
+          NODE
+      - name: Record passing QA
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add qa-report.json
+          git commit -m 'record Interview Lab QA [skip ci]' || true
+          git pull --rebase origin main
+          git push origin HEAD:main
       - uses: actions/configure-pages@v5
         with:
           enablement: true

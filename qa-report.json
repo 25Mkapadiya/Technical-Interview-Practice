@@ -9,5 +9,10 @@
   "titleCollisionGuards": "ok",
   "externalProblemLinksRequired": false,
   "residualCanonicalDependencies": 0,
-  "status": "ok"
+  "status": "ok",
+  "browser": {
+    "status": "pending"
+  },
+  "commit": "287a2cb2dd857517c9485617dbc5b0ca6bc1c66d",
+  "checkedAt": "2026-08-18T20:25:11.730Z"
 }

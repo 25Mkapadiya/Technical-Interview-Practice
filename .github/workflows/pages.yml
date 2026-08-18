@@ -22,6 +22,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,13 +46,26 @@ jobs:
           node --check workers/python-worker.js
           node --check scripts/sync-striver.mjs
           node --check tests/qa.mjs
-      - name: Run Interview Lab QA
+          node --check tests/browser-smoke.mjs
+      - name: Run data and judge QA
         run: node tests/qa.mjs | tee qa-report.json
+      - name: Install browser test runtime
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.54.2
+          npx playwright install --with-deps chromium
+      - name: Run browser smoke test
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 >/tmp/interview-lab-server.log 2>&1 &
+          echo $! >/tmp/interview-lab-server.pid
+          sleep 1
+          node tests/browser-smoke.mjs | tee browser-report.json
       - name: Stamp QA report
         run: |
           node <<'NODE'
           const fs = require('fs');
           const report = JSON.parse(fs.readFileSync('qa-report.json', 'utf8'));
+          report.browser = JSON.parse(fs.readFileSync('browser-report.json', 'utf8'));
           report.commit = process.env.GITHUB_SHA;
           report.checkedAt = new Date().toISOString();
           fs.writeFileSync('qa-report.json', JSON.stringify(report, null, 2) + '\n');
@@ -64,6 +78,10 @@ jobs:
           git commit -m 'record Interview Lab QA [skip ci]' || true
           git pull --rebase origin main
           git push origin HEAD:main
+      - name: Clean browser test dependencies
+        run: |
+          if [ -f /tmp/interview-lab-server.pid ]; then kill $(cat /tmp/interview-lab-server.pid) || true; fi
+          rm -rf node_modules package.json package-lock.json browser-report.json
       - uses: actions/configure-pages@v5
         with:
           enablement: true

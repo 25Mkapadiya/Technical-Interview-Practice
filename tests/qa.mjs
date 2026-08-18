@@ -8,13 +8,14 @@ const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
 globalThis.window = {};
 globalThis.performance ??= { now: () => Date.now() };
 
-for (const file of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/runner.js']) {
+for (const file of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/problem-context.js', 'lib/runner.js']) {
   vm.runInThisContext(read(file), { filename: file });
 }
 
 assert.ok(window.ProblemEngine, 'ProblemEngine did not initialize');
 assert.ok(window.SolutionEngine, 'SolutionEngine did not initialize');
 assert.ok(window.JudgeCases, 'JudgeCases did not initialize');
+assert.ok(window.InterviewLabContext, 'InterviewLabContext did not initialize');
 assert.ok(window.Runner, 'Runner did not initialize');
 
 const judgeAudit = window.JudgeCases.audit();
@@ -50,6 +51,7 @@ for (const [index, row] of rows.entries()) {
   const problem = window.ProblemEngine.enrich(base);
   const solution = window.SolutionEngine.explain(problem);
 
+  assert.equal(window.InterviewLabContext.currentProblem?.title, problem.title, 'Current problem context did not track enriched problem');
   if (problem.validationCoverage === 'curated') curated += 1;
   if (solution.level === 'problem-specific') specificSolutions += 1;
 
@@ -70,7 +72,7 @@ assert.ok(curated >= 15, `Expected curated judges to attach to at least 15 A2Z e
 assert.ok(specificSolutions >= 10, `Expected at least 10 problem-specific solution explanations; got ${specificSolutions}`);
 
 const index = read('index.html');
-for (const script of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/runner.js', 'lib/complexity.js', 'app.js', 'lib/ui-enhancements.js']) {
+for (const script of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/problem-context.js', 'lib/runner.js', 'lib/complexity.js', 'app.js', 'lib/ui-enhancements.js']) {
   assert.ok(index.includes(script), `index.html is missing ${script}`);
 }
 

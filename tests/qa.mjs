@@ -31,6 +31,7 @@ assert.equal(window.Runner.outputsMatch('5', { expected: '4', compare: 'exact' }
 const variant = (title, topic = '') => window.ProblemEngine.enrich({ id: `variant-${title}`, order: 1, title, topic, difficulty: 'Medium' });
 const secondLargest = variant('Second Largest Element in an Array', 'Solve Problems on Arrays [Easy -> Medium -> Hard]');
 assert.equal(secondLargest.tests[0]?.expected, '4');
+assert.match(secondLargest.brief, /second-largest distinct/i);
 assert.match(secondLargest.outputFormat, /second distinct largest/i);
 assert.match(window.SolutionEngine.explain(secondLargest).intuition, /second-largest|second maximum|top two|largest and second/i);
 const kth = variant('Kth Largest Element in an Array', 'Heaps [Learning, Medium, Hard Problems]');
@@ -57,6 +58,7 @@ let selfContained = 0;
 const explanationFailures = [];
 const contentFailures = [];
 const testFailures = [];
+const externalDependency = /canonical\s+source|source\s+contract|canonical\s+problem|open\s+the\s+source/i;
 
 for (const [index, row] of rows.entries()) {
   const problem = window.ProblemEngine.enrich({
@@ -78,7 +80,13 @@ for (const [index, row] of rows.entries()) {
   if (requiredSolution.some((value) => !String(value || '').trim()) || !Array.isArray(solution.optimalSteps) || solution.optimalSteps.length < 3) explanationFailures.push(row.problem_name);
 
   const requiredContent = [problem.brief, problem.inputFormat, problem.outputFormat, problem.practiceContract, problem.sourceNote];
-  if (requiredContent.some((value) => !String(value || '').trim()) || !Array.isArray(problem.constraints) || problem.constraints.length < 3 || !Array.isArray(problem.edgeCases) || problem.edgeCases.length < 3 || problem.sourceUrl) contentFailures.push(row.problem_name);
+  const allDisplayContent = [...requiredContent, ...(problem.constraints || []), ...(problem.edgeCases || [])].join('\n');
+  if (
+    requiredContent.some((value) => !String(value || '').trim()) ||
+    !Array.isArray(problem.constraints) || problem.constraints.length < 3 ||
+    !Array.isArray(problem.edgeCases) || problem.edgeCases.length < 3 ||
+    problem.sourceUrl || externalDependency.test(allDisplayContent)
+  ) contentFailures.push(row.problem_name);
 
   for (const test of problem.tests || []) {
     if (!test.name || typeof test.stdin !== 'string' || typeof test.expected !== 'string') testFailures.push(`${row.problem_name}: malformed test`);
@@ -94,7 +102,7 @@ assert.ok(curated >= 15);
 assert.ok(specificSolutions >= 10);
 
 const index = read('index.html');
-for (const script of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/semantic-guards.js', 'lib/collision-guards.js', 'lib/content-engine.js', 'lib/problem-context.js', 'lib/runner.js', 'lib/complexity.js', 'app.js', 'lib/ui-enhancements.js']) {
+for (const script of ['lib/problem-engine.js', 'lib/solution-engine.js', 'lib/judge-cases.js', 'lib/semantic-guards.js', 'lib/collision-guards.js', 'lib/content-engine.js', 'lib/problem-context.js', 'lib/runner.js', 'lib/complexity.js', 'app.js', 'lib/editor-lifecycle.js', 'lib/ui-enhancements.js']) {
   assert.ok(index.includes(script), `index.html is missing ${script}`);
 }
 
@@ -108,5 +116,6 @@ console.log(JSON.stringify({
   variantGuards: 'ok',
   titleCollisionGuards: 'ok',
   externalProblemLinksRequired: false,
+  residualCanonicalDependencies: 0,
   status: 'ok'
 }, null, 2));

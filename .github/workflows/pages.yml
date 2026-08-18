@@ -50,6 +50,22 @@ jobs:
           node --check tests/browser-smoke.mjs
       - name: Run data and judge QA
         run: node tests/qa.mjs > qa-report.json
+      - name: Checkpoint static QA
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('qa-report.json', 'utf8'));
+          report.browser = { status: 'pending' };
+          report.commit = process.env.GITHUB_SHA;
+          report.checkedAt = new Date().toISOString();
+          fs.writeFileSync('qa-report.json', JSON.stringify(report, null, 2) + '\n');
+          NODE
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add qa-report.json
+          git commit -m 'checkpoint Interview Lab QA [skip ci]' || true
+          git pull --rebase origin main
+          git push origin HEAD:main
       - name: Install browser test runtime
         run: |
           npm init -y >/dev/null 2>&1
@@ -67,7 +83,7 @@ jobs:
           set -e
           cat browser-run.log
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
-      - name: Stamp QA report
+      - name: Stamp browser QA result
         env:
           BROWSER_EXIT_CODE: ${{ steps.browser.outputs.exit_code }}
         run: |
@@ -90,7 +106,7 @@ jobs:
           report.checkedAt = new Date().toISOString();
           fs.writeFileSync('qa-report.json', JSON.stringify(report, null, 2) + '\n');
           NODE
-      - name: Record QA result
+      - name: Record browser QA result
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

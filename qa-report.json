@@ -1,17 +1,12 @@
 {
   "a2zProblems": 474,
   "selfContainedProblems": 474,
-  "curatedProblemMatches": 43,
+  "curatedProblemMatches": 41,
   "problemSpecificSolutions": 42,
   "judgeSuites": 34,
   "judgeCases": 112,
   "variantGuards": "ok",
   "titleCollisionGuards": "ok",
   "externalProblemLinksRequired": false,
-  "status": "ok",
-  "browser": {
-    "status": "pending"
-  },
-  "commit": "c2411ba85566e292babaee7e3060f6c94f7d6f25",
-  "checkedAt": "2026-08-18T18:20:56.041Z"
+  "status": "ok"
 }

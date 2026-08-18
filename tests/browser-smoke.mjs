@@ -7,9 +7,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 const pageErrors = [];
 
 page.on('pageerror', (error) => pageErrors.push(`pageerror: ${error.message}`));
-page.on('console', (message) => {
-  if (message.type() === 'error') pageErrors.push(`console: ${message.text()}`);
-});
+page.on('console', (message) => { if (message.type() === 'error') pageErrors.push(`console: ${message.text()}`); });
 
 async function library() {
   if (await page.locator('.workspace').count()) await page.locator('[data-action="back-problems"]').click();
@@ -42,11 +40,15 @@ async function setCode(code) {
   await page.evaluate((value) => window.monaco.editor.getModels()[0].setValue(value), code);
 }
 
-async function submitAndWait(expectedClass, timeout = 70_000) {
+async function submit(timeout = 70_000) {
   await page.getByRole('button', { name: 'Submit' }).click();
-  const status = page.locator(`.result-status.${expectedClass}`);
-  await status.waitFor({ timeout });
-  return page.locator('.result-head').innerText();
+  const terminal = page.locator('.result-status.accepted, .result-status.failed');
+  await terminal.waitFor({ timeout });
+  return {
+    status: (await terminal.first().innerText()).trim(),
+    head: await page.locator('.result-head').innerText(),
+    body: await page.locator('.result-body').innerText()
+  };
 }
 
 try {
@@ -57,13 +59,12 @@ try {
   await page.waitForFunction(() => document.querySelectorAll('.problem-row[data-problem-id]').length === 474, null, { timeout: 30_000 });
   assert.equal(await page.locator('.problem-row[data-problem-id]').count(), 474);
 
-  // Human simulation 1: open a problem, read the local statement, submit a wrong answer, then correct it.
   const largestTitle = await openByTitle('Largest Element', `(title) => title.includes('largest element') && !title.includes('second') && !title.includes('kth') && !title.includes('k-th')`);
   const description = await page.locator('#leftContent').innerText();
-  assert.match(description, /Constraints & assumptions/i, 'Self-contained constraints were not rendered');
-  assert.match(description, /Edge cases to think through/i, 'Self-contained edge cases were not rendered');
-  assert.match(description, /Interview Lab practice contract/i, 'Local practice contract was not rendered');
-  assert.doesNotMatch(description, /Canonical source|Open ↗/i, 'Description still depends on a canonical-source link');
+  assert.match(description, /Constraints & assumptions/i);
+  assert.match(description, /Edge cases to think through/i);
+  assert.match(description, /Interview Lab practice contract/i);
+  assert.doesNotMatch(description, /Canonical source|Open ↗/i);
 
   await page.locator('[data-solution-tab]').waitFor({ timeout: 10_000 });
   await page.locator('[data-solution-tab]').click();
@@ -78,14 +79,14 @@ try {
   assert.equal(await hiddenCases.first().isDisabled(), true);
 
   await setCode(`import sys\ndata = list(map(int, sys.stdin.read().split()))\nn = data[0]\na = data[1:1+n]\nprint(min(a))\n`);
-  await submitAndWait('failed');
-  assert.match(await page.locator('.result-head').innerText(), /Wrong Answer/i, 'A deliberately wrong solution was incorrectly accepted');
+  const wrong = await submit();
+  assert.match(wrong.status, /Wrong Answer/i, `Deliberately wrong solution was accepted.\n${wrong.head}\n${wrong.body}`);
 
   await setCode(`import sys\ndata = list(map(int, sys.stdin.read().split()))\nn = data[0]\na = data[1:1+n]\nprint(max(a))\n`);
-  const largestPass = await submitAndWait('accepted');
-  assert.match(largestPass, /4\/4 passed/i, 'Correct Python solution did not pass all Largest Element hidden cases');
+  const largest = await submit();
+  assert.match(largest.status, /Accepted/i, `Correct Largest Element Python solution failed.\n${largest.head}\n${largest.body}`);
+  assert.match(largest.head, /4\/4 passed/i);
 
-  // Human simulation 2: move to another problem and solve it in JavaScript.
   const secondTitle = await openByTitle('Second Largest', `(title) => title.includes('second') && title.includes('largest')`);
   const secondDescription = await page.locator('#leftContent').innerText();
   assert.match(secondDescription, /second-largest distinct|second distinct largest/i);
@@ -94,8 +95,9 @@ try {
   await page.locator('#languageSelect').selectOption('javascript');
   await page.waitForTimeout(150);
   await setCode(`const nums = __INPUT__.trim().split(/\\s+/).map(Number);\nconst n = nums[0];\nconst a = nums.slice(1, 1 + n);\nlet first = -Infinity, second = -Infinity;\nfor (const x of a) {\n  if (x > first) { second = first; first = x; }\n  else if (x < first && x > second) second = x;\n}\nconsole.log(second);\n`);
-  const secondPass = await submitAndWait('accepted', 20_000);
-  assert.match(secondPass, /4\/4 passed/i, 'Correct JavaScript Second Largest solution did not pass all hidden cases');
+  const second = await submit(25_000);
+  assert.match(second.status, /Accepted/i, `Correct Second Largest JavaScript solution failed.\n${second.head}\n${second.body}`);
+  assert.match(second.head, /4\/4 passed/i);
 
   await page.locator('[data-solution-tab]').click();
   assert.match(await page.locator('#leftContent').innerText(), /second-largest|second maximum|distinct/i);

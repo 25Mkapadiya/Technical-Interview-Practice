@@ -48,29 +48,48 @@ jobs:
           node --check tests/qa.mjs
           node --check tests/browser-smoke.mjs
       - name: Run data and judge QA
-        run: node tests/qa.mjs | tee qa-report.json
+        run: node tests/qa.mjs > qa-report.json
       - name: Install browser test runtime
         run: |
           npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.54.2
           npx playwright install --with-deps chromium
       - name: Run browser smoke test
+        id: browser
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 >/tmp/interview-lab-server.log 2>&1 &
           echo $! >/tmp/interview-lab-server.pid
           sleep 1
-          node tests/browser-smoke.mjs | tee browser-report.json
+          set +e
+          node tests/browser-smoke.mjs > browser-run.log 2>&1
+          status=$?
+          set -e
+          cat browser-run.log
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
       - name: Stamp QA report
+        env:
+          BROWSER_EXIT_CODE: ${{ steps.browser.outputs.exit_code }}
         run: |
           node <<'NODE'
           const fs = require('fs');
           const report = JSON.parse(fs.readFileSync('qa-report.json', 'utf8'));
-          report.browser = JSON.parse(fs.readFileSync('browser-report.json', 'utf8'));
+          const code = Number(process.env.BROWSER_EXIT_CODE || 1);
+          const log = fs.existsSync('browser-run.log') ? fs.readFileSync('browser-run.log', 'utf8') : '';
+          if (code === 0) {
+            try {
+              report.browser = JSON.parse(log);
+            } catch {
+              report.browser = { status: 'ok', raw: log.slice(-4000) };
+            }
+          } else {
+            report.status = 'failed';
+            report.browser = { status: 'failed', exitCode: code, error: log.slice(-8000) };
+          }
           report.commit = process.env.GITHUB_SHA;
           report.checkedAt = new Date().toISOString();
           fs.writeFileSync('qa-report.json', JSON.stringify(report, null, 2) + '\n');
           NODE
-      - name: Record passing QA
+      - name: Record QA result
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -79,9 +98,13 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
       - name: Clean browser test dependencies
+        if: always()
         run: |
           if [ -f /tmp/interview-lab-server.pid ]; then kill $(cat /tmp/interview-lab-server.pid) || true; fi
-          rm -rf node_modules package.json package-lock.json browser-report.json
+          rm -rf node_modules package.json package-lock.json browser-run.log
+      - name: Enforce browser QA
+        if: steps.browser.outputs.exit_code != '0'
+        run: exit 1
       - uses: actions/configure-pages@v5
         with:
           enablement: true
